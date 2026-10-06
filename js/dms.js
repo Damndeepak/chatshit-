@@ -471,7 +471,13 @@
       $("#inboxConnectionLabel").textContent="Community room ready";
       $("#inboxModeLabel").textContent="Live chat";
       unsubscribeCloud=window.ChatshitCloud.subscribe(addCloudMessage,function(){reloadCloudNotes();},function(){reloadCloudProfiles();},function(){reloadCloudStories();});
-      const [messages,notes,stories]=await Promise.all([window.ChatshitCloud.loadMessages(),window.ChatshitCloud.loadNotes(),window.ChatshitCloud.loadStories()]);
+      const messages=await window.ChatshitCloud.loadMessages();
+      let notes=[];
+      let stories=[];
+      try{notes=await window.ChatshitCloud.loadNotes();}
+      catch(error){console.warn("Community Notes could not be loaded.",error);}
+      try{stories=await window.ChatshitCloud.loadStories();}
+      catch(error){console.warn("Community Stories could not be loaded.",error);}
       const arrivals=room.messages.filter(function(message){return message.id&&CLOUD_ID.test(message.id)&&CLOUD_ID.test(message.userId||"");});
       const byId=new Map();
       messages.concat(arrivals).forEach(function(message){if(message.id)byId.set(message.id,message);});
@@ -482,19 +488,24 @@
       const mine=cloudNotes.find(function(note){return note.userId===window.ChatshitCloud.userId;});
       if(mine)myNote={text:mine.text,musicUrl:mine.musicUrl||"",expiresAt:mine.expiresAt,fromCloud:true};
       else if(myNote&&myNote.fromCloud)myNote=null;
-      if(!mine&&myNote&&!myNote.fromCloud){await window.ChatshitCloud.saveNote(myNote.text,myNote.musicUrl,identity.nickname||"Someone");myNote.fromCloud=true;}
+      if(!mine&&myNote&&!myNote.fromCloud){
+        try{await window.ChatshitCloud.saveNote(myNote.text,myNote.musicUrl,identity.nickname||"Someone");myNote.fromCloud=true;}
+        catch(error){console.warn("Your saved Note could not be shared yet.",error);}
+      }
       saveMyNote();
       renderNotes();
       renderStories();
       renderMessages();
     }catch(error){
+      console.error("Chatshit shared chat could not load.",error);
       cloudConnected=false;
       $("#inboxConnectionLabel").textContent="Not connected";
       $("#inboxModeLabel").textContent="Cloud connection issue";
       renderHeader();
       renderStories();
       renderNotes();
-      showToast("Shared chat could not connect. Check the Supabase setup.");
+      const detail=error&&typeof error.message==="string"?error.message.trim().slice(0,110):"";
+      showToast(detail?"Shared chat could not connect: "+detail:"Shared chat could not connect. Check the Supabase setup.");
     }
   }
   function renderPeople(query){

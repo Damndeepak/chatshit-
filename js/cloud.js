@@ -64,8 +64,12 @@
   }
 
   async function loadStories() {
-    const { error: cleanupError } = await client.rpc("cleanup_expired_chatshit_stories");
-    if (cleanupError) throw cleanupError;
+    try {
+      const { error: cleanupError } = await client.rpc("cleanup_expired_chatshit_stories");
+      if (cleanupError) console.warn("Expired community stories could not be cleaned up yet.", cleanupError);
+    } catch (cleanupError) {
+      console.warn("Expired community stories could not be cleaned up yet.", cleanupError);
+    }
     const { data, error } = await client.from("global_stories").select("id,user_id,display_name,caption,image_path,created_at,expires_at").gt("expires_at", new Date().toISOString()).order("created_at", { ascending: true }).limit(100);
     if (error) throw error;
     return Promise.all((data || []).map(mapStory));
