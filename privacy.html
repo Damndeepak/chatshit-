@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f7f5fb">
+  <title>Privacy · Chatshit</title>
+  <link rel="icon" href="assets/chatshit-mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/privacy.css">
+</head>
+<body>
+  <main class="privacy-shell">
+    <a class="privacy-wordmark" href="index.html"><span>chatshit<span>.</span></span><small>BACK TO MESSAGES ↗</small></a>
+    <article class="privacy-card">
+      <div class="overline">YOUR DATA, YOUR CALL</div>
+      <h1>Privacy, in plain words.</h1>
+      <p class="privacy-lead">Chatshit is a small chat website. This page explains what stays on your device and what is shared when you connect services.</p>
+      <p class="privacy-updated">Effective 6 October 2026</p>
+
+      <section>
+        <h2>Spotify</h2>
+        <p>When you choose <strong>Connect</strong>, Chatshit asks Spotify for permission to read your currently playing track. The track title, artist, Spotify link and cover image are fetched for your own browser and shown only in your Notes view. Chatshit does not send this live playback data to its shared database.</p>
+        <p>Spotify access and refresh tokens are stored in this browser so the connection can continue on this device. Choose <strong>Disconnect</strong> in the Notes editor to delete those local tokens and stop playback requests. You can also remove Chatshit from your connected apps in your Spotify account.</p>
+        <p>If you choose <strong>Add current song link</strong> and then share your Note, you are choosing to share that Spotify URL with the Chatshit room. Shared Notes and their links are visible to signed-in room members and expire after 24 hours.</p>
+      </section>
+
+      <section>
+        <h2>Messages and Notes</h2>
+        <p>Without a configured Supabase project, demo chats, your profile and Notes are saved in this browser. When the shared backend is configured, community messages and Notes are sent to Supabase and can be read by signed-in room members. Avoid posting private or sensitive information in the public room.</p>
+        <p>The People directory lists display names and account creation dates for signed-in community profiles. Email addresses are not requested or displayed. Each user can update only their own profile.</p>
+      </section>
+
+      <section>
+        <h2>Third-party services</h2>
+        <p>Spotify handles Spotify sign-in and playback requests. Supabase hosts shared chat data when enabled. The website may also load its fonts and the Supabase browser library from their providers.</p>
+      </section>
+
+      <section>
+        <h2>Questions or data removal</h2>
+        <p>Disconnect Spotify in the Notes editor to clear the Spotify tokens stored on this device. To ask about this website or shared data, contact the project maintainer through <a href="https://github.com/Damndeepak/chatshit-/issues" target="_blank" rel="noopener noreferrer">the project issue tracker</a>.</p>
+      </section>
+    </article>
+    <footer>chatshit. · a softer place for your conversations</footer>
+  </main>
+</body>
+</html>

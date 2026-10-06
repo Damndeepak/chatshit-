@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f7f5fb">
+  <meta name="description" content="A softer place for your conversations.">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="assets/chatshit-mark.svg" type="image/svg+xml">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="chatshit.">
+  <link rel="apple-touch-icon" href="assets/chatshit-mark-192.png">
+  <title>Chatshit — messages, made softer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+  <svg class="svg-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5 7.7 7.7 0 0 1-3.3-.75L4 20l1.55-4.1A7.5 7.5 0 1 1 20 11.5Z"/><path d="M8.5 11.5h.01M12.5 11.5h.01M16.5 11.5h.01"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><path d="M16 20v-1.5a3.5 3.5 0 0 0-3.5-3.5h-5A3.5 3.5 0 0 0 4 18.5V20"/><circle cx="10" cy="7.5" r="3.5"/><path d="M16 4.2a3.5 3.5 0 0 1 0 6.6M20 20v-1.5a3.5 3.5 0 0 0-2.5-3.35"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.3"/><path d="m16 16 4 4"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><path d="M7 3.8 9.6 3l2 4.7-2.3 1.7a14 14 0 0 0 5.3 5.3l1.7-2.3 4.7 2-.8 2.6a2.5 2.5 0 0 1-2.8 1.7A17.5 17.5 0 0 1 5.3 6.6 2.5 2.5 0 0 1 7 3.8Z"/></symbol>
+    <symbol id="i-video" viewBox="0 0 24 24"><rect x="3" y="6" width="13" height="12" rx="3"/><path d="m16 10 5-3v10l-5-3z"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></symbol>
+    <symbol id="i-smile" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/></symbol>
+    <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="8.5" cy="9" r="1.5"/><path d="m21 15-5-5L5 20"/></symbol>
+    <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 18v3M9 21h6"/></symbol>
+    <symbol id="i-send" viewBox="0 0 24 24"><path d="m21 3-7.4 18-3.4-7.2L3 10.4 21 3Z"/><path d="M10.2 13.8 15 9"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+    <symbol id="i-back" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20.5 15.2A8.5 8.5 0 0 1 8.8 3.5 8.5 8.5 0 1 0 20.5 15.2Z"/></symbol>
+    <symbol id="i-more" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M20.8 8.7c0 4.2-8.8 10-8.8 10S3.2 12.9 3.2 8.7A4.5 4.5 0 0 1 12 6.5a4.5 4.5 0 0 1 8.8 2.2Z"/></symbol>
+    <symbol id="i-spark" viewBox="0 0 24 24"><path d="m12 3 1.7 5.3L19 10l-5.3 1.7L12 17l-1.7-5.3L5 10l5.3-1.7L12 3ZM19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8L19 16Z"/></symbol>
+    <symbol id="i-music" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></symbol>
+    <symbol id="i-install" viewBox="0 0 24 24"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v3h16v-3"/></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3.5 12h17M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"/></symbol>
+  </svg>
+
+  <main class="app-shell">
+    <aside class="side-rail" aria-label="Main navigation">
+      <a class="wordmark" href="#" aria-label="Chatshit home"><span class="wordmark-icon"><svg class="icon"><use href="#i-chat"/></svg></span><span>chatshit<span class="wordmark-dot">.</span></span></a>
+      <nav class="primary-nav">
+        <button class="nav-button is-active" data-view="inbox" type="button"><span class="nav-icon"><svg class="icon"><use href="#i-chat"/></svg></span><span>Messages</span><span class="nav-ping" id="navUnread">3</span></button>
+        <button class="nav-button" data-view="everyone" type="button"><span class="nav-icon"><svg class="icon"><use href="#i-globe"/></svg></span><span>Everyone</span></button>
+        <button class="nav-button" data-view="people" type="button"><span class="nav-icon"><svg class="icon"><use href="#i-users"/></svg></span><span>People</span></button>
+      </nav>
+      <div class="rail-spacer"></div>
+      <div class="rail-message"><span class="rail-message-icon"><svg class="icon"><use href="#i-spark"/></svg></span><span>Good chats<br>feel like home.</span></div>
+      <button class="profile-shortcut" type="button" id="editProfileButton" aria-label="Edit your profile">
+        <span class="avatar avatar-me" id="selfAvatar">Y</span><span class="profile-shortcut-copy"><strong id="selfName">You</strong><small id="selfHandle">@here_for_a_bit</small></span><svg class="icon small"><use href="#i-more"/></svg>
+      </button>
+    </aside>
+
+    <section class="inbox-panel" id="inboxPanel" aria-label="Your conversations">
+      <div class="inbox-heading">
+        <div><div class="overline">YOUR LITTLE CORNER</div><h1>Messages <span class="heading-spark">✳</span></h1></div>
+        <button class="mobile-profile-button" type="button" id="mobileProfileButton" aria-label="Edit your profile"><span class="avatar avatar-me" id="mobileSelfAvatar">Y</span></button>
+        <button class="icon-button compose-trigger" type="button" id="composeButton" aria-label="Start a new conversation" title="New message"><svg class="icon"><use href="#i-plus"/></svg></button>
+      </div>
+      <label class="search-field"><svg class="icon"><use href="#i-search"/></svg><input id="searchInput" type="search" placeholder="Search conversations" autocomplete="off"><kbd>⌘ K</kbd></label>
+      <div class="stories-heading"><span>Little updates</span><button type="button" class="text-button" id="yourStoryButton">Your story <span>＋</span></button></div>
+      <div class="stories-strip" id="storiesStrip" aria-label="Stories"></div>
+      <section class="notes-area" aria-label="Notes">
+        <div class="notes-heading"><span>Notes <small>little thoughts, little songs</small></span><button type="button" class="text-button" id="editNoteButton">＋ Add yours</button></div>
+        <div class="notes-strip" id="notesStrip"></div>
+      </section>
+      <div class="inbox-tabs" role="tablist" aria-label="Conversation filters">
+        <button class="filter-chip is-selected" data-filter="all" type="button" aria-pressed="true">All <span id="allCount">6</span></button>
+        <button class="filter-chip" data-filter="unread" type="button" aria-pressed="false">Unread</button>
+        <button class="filter-chip" data-filter="groups" type="button" aria-pressed="false">Groups</button>
+      </div>
+      <div class="conversation-list" id="conversationList" role="list"></div>
+      <div class="inbox-footer"><span class="status-orb"></span><span id="inboxConnectionLabel">Saved on this device</span><span class="footer-dot">·</span><span id="inboxModeLabel">Demo mode</span><button type="button" class="install-app-button" id="installAppButton"><svg class="icon"><use href="#i-install"/></svg><span>Install</span></button></div>
+    </section>
+
+    <section class="chat-panel" id="chatPanel" aria-label="Conversation">
+      <header class="chat-header">
+        <button class="back-button icon-button" type="button" id="backToInbox" aria-label="Back to conversations"><svg class="icon"><use href="#i-back"/></svg></button>
+        <div id="chatPersonAvatar" class="avatar avatar-violet">M</div>
+        <div class="chat-heading-copy"><div class="chat-title-row"><h2 id="chatPersonName">Maya Chen</h2><span class="verified-badge" title="A very real person">✦</span></div><p id="chatPersonStatus"><span class="status-orb"></span>Active now</p></div>
+        <div class="chat-actions">
+          <button class="icon-button subtle" type="button" data-toast="Voice calls are a little outside this demo" aria-label="Start an audio call"><svg class="icon"><use href="#i-phone"/></svg></button>
+          <button class="icon-button subtle" type="button" data-toast="Video calls are coming to this demo next" aria-label="Start a video call"><svg class="icon"><use href="#i-video"/></svg></button>
+          <button class="icon-button subtle detail-toggle" type="button" id="detailToggle" aria-label="Conversation details"><svg class="icon"><use href="#i-info"/></svg></button>
+        </div>
+      </header>
+      <div class="chat-subhead"><span class="privacy-lock">✧</span> <span id="chatStorageLabel">Your messages live in this browser</span> <span class="subhead-dot">·</span> <span id="chatHandle">@mayac</span></div>
+      <div class="message-thread" id="messageThread" aria-live="polite" aria-relevant="additions text"></div>
+      <div class="typing-row" id="typingRow" hidden><span class="typing-dots"><i></i><i></i><i></i></span><span id="typingLabel">Maya is typing</span></div>
+      <form class="composer" id="messageForm">
+        <input type="file" id="imageInput" accept="image/*" hidden>
+        <button class="composer-tool" type="button" id="attachButton" aria-label="Attach an image" title="Attach a small image"><svg class="icon"><use href="#i-image"/></svg></button>
+        <div class="composer-input-wrap"><textarea id="messageInput" rows="1" placeholder="Write something nice…" aria-label="Write a message"></textarea><button class="composer-emoji" type="button" id="emojiButton" aria-label="Choose an emoji"><svg class="icon"><use href="#i-smile"/></svg></button></div>
+        <button class="composer-tool mic-button" type="button" data-toast="Voice notes need a server. For now, send a tiny poem." aria-label="Voice note"><svg class="icon"><use href="#i-mic"/></svg></button>
+        <button class="send-button" type="submit" aria-label="Send message"><svg class="icon"><use href="#i-send"/></svg><span>Send</span></button>
+        <div class="emoji-tray" id="emojiTray" hidden aria-label="Emoji picker"></div>
+      </form>
+      <div class="mobile-hint">A quiet little place to say hello.</div>
+    </section>
+
+    <aside class="details-panel" id="detailsPanel" aria-label="Conversation details">
+      <div class="details-topline"><span>CONVERSATION CARD</span><button type="button" class="icon-button mini" id="closeDetails" aria-label="Close details"><svg class="icon"><use href="#i-close"/></svg></button></div>
+      <div class="detail-profile">
+        <div class="avatar avatar-large avatar-violet" id="detailAvatar">M</div>
+        <h3 id="detailName">Maya Chen</h3><p id="detailHandle">@mayac</p>
+        <span class="detail-status"><span class="status-orb"></span><span id="detailStatus">Online now</span></span>
+      </div>
+      <div class="detail-actions"><button type="button" data-toast="Profile preview only">View profile</button><button type="button" data-toast="You can mute this chat in a future version">Mute</button></div>
+      <div class="detail-section"><div class="detail-section-title"><span>Shared moments</span><button type="button" class="text-button" data-toast="Shared media will appear here">See all</button></div><div class="memory-grid" aria-label="Shared media preview"><div class="memory memory-one">☼</div><div class="memory memory-two">✿</div><div class="memory memory-three">☾</div></div><p class="detail-caption">The good stuff, all in one place.</p></div>
+      <div class="detail-section safety-note"><span class="safety-icon">✧</span><div><strong>Local preview</strong><p>Messages save in this browser only. They are not encrypted or delivered to another person.</p></div></div>
+      <div class="detail-bottom">A softer inbox by <strong>chatshit.</strong></div>
+    </aside>
+
+    <section class="people-view" id="peopleView" hidden>
+      <button class="people-back-button" type="button" id="peopleBackButton"><svg class="icon"><use href="#i-back"/></svg><span>Messages</span></button>
+      <div class="people-header"><div><div class="overline">GOOD PEOPLE, GOOD ENERGY</div><h1>Find your people <span class="heading-spark">✳</span></h1><p id="peopleDirectoryHint">Demo profiles · connect the shared backend to list everyone who joins.</p></div><button class="icon-button compose-trigger" type="button" id="peopleComposeButton" aria-label="Start a new conversation"><svg class="icon"><use href="#i-plus"/></svg></button></div>
+      <label class="search-field people-search"><svg class="icon"><use href="#i-search"/></svg><input id="peopleSearch" type="search" placeholder="Find someone by name"></label>
+      <div class="people-cards" id="peopleCards"></div>
+      <div class="people-note"><span>✧</span><p><strong>Community directory.</strong> Signed-in members can see each user’s display name. Email addresses are never shown.</p></div>
+    </section>
+  </main>
+
+  <dialog class="modal" id="composeDialog">
+    <form method="dialog" class="modal-card" id="composeForm">
+      <div class="modal-heading"><div><div class="overline">A NEW THREAD</div><h2>Who’s on your mind?</h2></div><button class="icon-button mini" value="cancel" aria-label="Close"><svg class="icon"><use href="#i-close"/></svg></button></div>
+      <p class="modal-copy">Give this conversation a name. You can change it whenever.</p>
+      <label class="form-label" for="newChatName">Name or nickname</label><input class="modal-input" id="newChatName" maxlength="28" placeholder="e.g. Jamie" autocomplete="off">
+      <label class="form-label" for="newChatNote">A little context <span>(optional)</span></label><input class="modal-input" id="newChatNote" maxlength="42" placeholder="What do you want to remember?">
+      <button class="button-primary full-button" type="button" id="startChatButton">Start a conversation <span>↗</span></button>
+      <small class="modal-footnote">For now, your new thread is saved locally on this device.</small>
+    </form>
+  </dialog>
+
+  <dialog class="modal" id="profileDialog">
+    <form method="dialog" class="modal-card" id="profileForm">
+      <div class="modal-heading"><div><div class="overline">YOUR SPACE</div><h2>Make it yours.</h2></div><button class="icon-button mini" value="cancel" aria-label="Close"><svg class="icon"><use href="#i-close"/></svg></button></div>
+      <div class="profile-edit-avatar" id="profileEditAvatar">Y</div>
+      <label class="form-label" for="profileName">Display name</label><input class="modal-input" id="profileName" maxlength="28" placeholder="What should people call you?">
+      <p class="modal-copy">No sign-up step. Your display name stays here; the shared room uses a separate anonymous session when enabled.</p>
+      <button class="button-primary full-button" type="button" id="saveProfileButton">Save my name <span>✓</span></button>
+    </form>
+  </dialog>
+
+  <dialog class="story-modal" id="storyDialog">
+    <button class="story-close icon-button" type="button" id="closeStory" aria-label="Close story"><svg class="icon"><use href="#i-close"/></svg></button>
+    <div class="story-progress"><i></i></div><div class="story-content"><div class="story-avatar" id="storyAvatar">M</div><div class="story-kicker" id="storyKicker">A LITTLE UPDATE</div><p id="storyText">Taking the long way home today ☁️</p><button class="story-reply" type="button" id="storyReply">Send a little love <span>♡</span></button></div>
+  </dialog>
+
+  <dialog class="modal note-dialog" id="noteDialog">
+    <form class="modal-card" id="noteForm">
+      <div class="modal-heading"><div><div class="overline">A NOTE FOR YOUR PEOPLE</div><h2>What’s on your mind?</h2></div><button class="icon-button mini" type="button" id="closeNoteDialog" aria-label="Close"><svg class="icon"><use href="#i-close"/></svg></button></div>
+      <p class="modal-copy" id="noteVisibilityHint">Your note stays up for 24 hours. Everyone in Chatshit can see it.</p>
+      <label class="form-label" for="noteText">Your note <span>(up to 60 characters)</span></label>
+      <textarea class="modal-input note-text-input" id="noteText" maxlength="60" rows="3" placeholder="Currently romanticising my chai…"></textarea>
+      <label class="form-label" for="noteMusicUrl">Add a song link <span>(optional)</span></label>
+      <div class="music-link-field"><svg class="icon"><use href="#i-music"/></svg><input class="modal-input" id="noteMusicUrl" type="url" inputmode="url" placeholder="Paste a Spotify / Metrolist link"></div>
+      <p class="music-helper">Paste a Spotify or YouTube Music link. On Android, Chatshit may open YouTube Music links in Metrolist if it is installed.</p>
+      <section class="spotify-connect-card" aria-label="Spotify now playing">
+        <div class="spotify-connect-mark" aria-hidden="true">●</div>
+        <div class="spotify-connect-copy"><strong>Spotify <span id="spotifyConnectionState">Not connected</span></strong><small id="spotifyConnectionHint">See your live track here, then choose if you want to share its link.</small></div>
+        <button class="spotify-connect-button" id="spotifyConnectButton" type="button">Connect</button>
+        <button class="spotify-connect-button spotify-disconnect-button" id="spotifyDisconnectButton" type="button" hidden>Disconnect</button>
+        <button class="spotify-share-button" id="spotifyUseTrackButton" type="button" disabled>Add current song link</button>
+      </section>
+      <p class="music-helper spotify-policy-note">Live playback stays on this device. Add the Spotify link to a Note to share it yourself. <a href="privacy.html">Privacy</a></p>
+      <button class="button-primary full-button" type="submit">Share my note <span>↗</span></button>
+    </form>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="js/identity.js"></script>
+  <script src="js/cloud-config.js"></script>
+  <script src="js/cloud.js"></script>
+  <script src="js/spotify.js"></script>
+  <script src="js/dms.js"></script>
+  <script>
+    if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+      window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
+    }
+  </script>
+</body>
+</html>

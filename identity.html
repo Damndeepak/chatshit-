@@ -3,10 +3,53 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Chatshit</title>
+  <meta name="theme-color" content="#f6f1fc">
+  <title>Welcome to chatshit.</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/identity.css">
 </head>
-
-<body>
-  <h1>Chatshit</h1>
+<body class="identity-page">
+  <header class="identity-nav"><a href="index.html" class="identity-brand"><span class="identity-brand-icon">✳</span>chatshit<span>.</span></a><span class="identity-nav-note">A softer inbox for your people</span></header>
+  <main class="identity-layout">
+    <section class="identity-story">
+      <div class="identity-label"><span></span> LESS NOISE, MORE HELLO</div>
+      <h1>Good chats<br>should feel like <em>home.</em></h1>
+      <p>A little room for your people, your small updates, and the messages you want to keep close.</p>
+      <div class="identity-art" aria-hidden="true">
+        <div class="art-orbit orbit-a"></div><div class="art-orbit orbit-b"></div>
+        <div class="art-bubble bubble-one">hey you <span>🌿</span></div>
+        <div class="art-bubble bubble-two"><span>🫶</span> always here</div>
+        <div class="art-center">✧</div><div class="art-star star-a">✦</div><div class="art-star star-b">✳</div>
+      </div>
+      <div class="identity-caption"><span>✧</span> small moments, held gently</div>
+    </section>
+    <section class="identity-card">
+      <div class="identity-card-top"><span class="identity-card-mark">☁</span><span class="identity-step">YOUR SPACE · 01</span></div>
+      <h2>First, what should<br>we call you?</h2>
+      <p class="identity-helper">No password, no profile hunt. Choose a nickname or come in as a quiet little stranger.</p>
+      <form id="identityForm">
+        <label for="nickname">A name for your corner <span>(optional)</span></label>
+        <div class="identity-input-wrap"><span class="name-spark">✦</span><input id="nickname" name="nickname" maxlength="28" placeholder="e.g. Dee, moonchild, you" autocomplete="nickname"></div>
+        <button class="identity-submit" type="submit">Come on in <span>↗</span></button>
+      </form>
+      <div class="identity-separator"><span>THE SMALL PRINT</span></div>
+      <div class="identity-footnote"><span>✧</span><p>Your nickname stays in this browser. The shared room uses an anonymous session after its optional backend is enabled.</p></div>
+      <a href="index.html" class="skip-identity">Skip for now <span>→</span></a>
+    </section>
+  </main>
+  <footer class="identity-footer"><span>chatshit. · demo edition</span><span>made for the people who feel like home</span></footer>
+  <script src="js/identity.js"></script>
+  <script>
+    document.getElementById("identityForm").addEventListener("submit", function(event) {
+      event.preventDefault();
+      const nickname = document.getElementById("nickname").value.trim();
+      window.ChatshitIdentity.create(nickname);
+      window.location.href = "index.html";
+    });
+    const saved = window.ChatshitIdentity.get();
+    if (saved && saved.nickname) document.getElementById("nickname").value = saved.nickname;
+  </script>
 </body>
 </html>

@@ -1,0 +1,16 @@
+.privacy-shell{width:min(760px,calc(100% - 32px));margin:0 auto;padding:25px 0 35px}
+.privacy-wordmark{display:flex;align-items:center;justify-content:space-between;margin-bottom:17px;text-decoration:none;color:#333047}
+.privacy-wordmark>span{font:800 17px var(--display);letter-spacing:-.06em}.privacy-wordmark>span span{color:#9078ed}
+.privacy-wordmark small{color:#928ca2;font-size:8px;font-weight:800;letter-spacing:.1em}
+.privacy-card{padding:clamp(22px,5vw,48px);border:1px solid #efedf3;border-radius:24px;background:#fff;box-shadow:0 20px 60px #392b550b}
+.privacy-card h1{margin:9px 0 10px;font:800 clamp(26px,5vw,40px)/1.1 var(--display);letter-spacing:-.06em;color:#302d44}
+.privacy-lead{max-width:560px;color:#858092;font-size:13px;line-height:1.75}
+.privacy-updated{margin:17px 0 26px;color:#aaa5b3;font-size:9px;font-weight:700}
+.privacy-card section{padding:20px 0;border-top:1px solid #f0edf4}
+.privacy-card h2{margin:0 0 9px;color:#514a67;font:750 15px var(--display);letter-spacing:-.025em}
+.privacy-card p{margin:8px 0 0;color:#777286;font-size:11px;line-height:1.8}
+.privacy-card strong{color:#58516c}.privacy-card a{color:#715ed1;font-weight:700;text-decoration:none}.privacy-card a:hover{text-decoration:underline}
+.privacy-shell footer{padding:16px 0;color:#aaa5b3;font-size:9px;text-align:center}
+body.dark .privacy-wordmark{color:#eeeaf6}body.dark .privacy-card{background:#302d3d;border-color:#403b50}
+body.dark .privacy-card h1{color:#f0edf7}body.dark .privacy-card h2,body.dark .privacy-card strong{color:#d2c9ed}
+body.dark .privacy-card p{color:#bbb5c7}body.dark .privacy-updated,body.dark .privacy-shell footer{color:#938ca2}
