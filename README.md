@@ -8,13 +8,14 @@ Open `index.html` for the local preview. For service-worker and install behavior
 
 ## Features
 
-- Responsive inbox, private demo threads, profile, stories, search, reactions, and dark mode.
+- Responsive inbox for one shared community room, profile, stories, search, reactions, and dark mode.
+- Image sharing in the room and photo or text stories, with 5 MB JPEG, PNG, or WebP uploads.
 - Notes that expire after 24 hours, with optional YouTube Music / Metrolist / Spotify links.
 - Optional Spotify sign-in that shows your own live track in Notes on this device.
 - A live People directory listing every Chatshit profile in the shared Supabase project.
 - One `Everyone` room for messages shared between all visitors when the Supabase backend is configured.
 - Progressive Web App manifest, offline app shell, home-screen icon, and an install button.
-- Local demo messages and notes remain in the current browser until a backend is configured.
+- No demo people or sample conversations are seeded. Without the shared backend, posting is disabled and the site shows a setup message.
 
 ## Turn on shared chat and Notes
 
@@ -22,13 +23,13 @@ The repository is static; it does not contain a server or database. Supabase sup
 
 1. Create a Supabase project.
 2. In **Authentication → Sign-in / Providers**, enable anonymous sign-ins.
-3. Open **SQL Editor** and run [`backend/supabase.sql`](backend/supabase.sql). If Supabase was already set up, run the updated script again to create/backfill the profiles table.
+3. Open **SQL Editor** and run [`backend/supabase.sql`](backend/supabase.sql). If Supabase was already set up, run the updated script again to add image and story support and backfill the profiles table.
 4. Copy the project URL and its **publishable** key (or legacy anon key) into `js/cloud-config.js`.
 5. Deploy the repo to an HTTPS host. The first visit creates an anonymous session, registers its display name in the directory, and joins the one shared room.
 
-The current sign-in is anonymous and tied to that browser; this repo does not yet have email/password registration or cross-device accounts. **People** lists every row in `profiles`, including the current user. Only display names and account creation dates are exposed; emails are never queried or shown. RLS lets signed-in members read the directory and update only their own profile.
+The current sign-in is anonymous and tied to that browser; this repo does not yet have email/password registration or cross-device accounts. **People** lists every row in `profiles`, including the current user. Only display names and account creation dates are exposed; emails are never queried or shown. RLS lets signed-in members read the directory and update only their own profile. The app currently has one public room; it does not provide private one-to-one chats.
 
-The browser key is public by design; row-level security in the SQL file controls access. Never put a `service_role` or secret key in `cloud-config.js`. The directory, room, and Notes are visible to all signed-in visitors. Messages are limited to 1,000 characters and 20 per user per minute; Notes are limited to 60 characters. Add CAPTCHA and moderation before inviting a large public audience.
+The browser key is public by design; row-level security in the SQL file controls access. Never put a `service_role` or secret key in `cloud-config.js`. The directory, room, Notes, and active Stories are visible to signed-in visitors. Stories expire after 24 hours. Images live in a private Storage bucket and are displayed with signed links that expire after seven days; anyone you forward a signed link to can open it before expiry. Expired Story rows and their image files are cleaned up when a member next opens the app. Messages are limited to 1,000 characters and 20 per user per minute; Notes are limited to 60 characters. Add CAPTCHA and moderation before inviting a large public audience.
 
 Without the project URL/key and SQL setup, the UI stays in preview mode and will not claim that messages reached anyone else.
 

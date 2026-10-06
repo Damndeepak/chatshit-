@@ -27,8 +27,14 @@
 
       <section>
         <h2>Messages and Notes</h2>
-        <p>Without a configured Supabase project, demo chats, your profile and Notes are saved in this browser. When the shared backend is configured, community messages and Notes are sent to Supabase and can be read by signed-in room members. Avoid posting private or sensitive information in the public room.</p>
+        <p>Chatshit has one public community room; it does not provide private one-to-one chats. Without a configured Supabase project, posting is disabled. When the backend is configured, messages and Notes are stored in Supabase and can be read by signed-in room members. Avoid posting private or sensitive information there.</p>
         <p>The People directory lists display names and account creation dates for signed-in community profiles. Email addresses are not requested or displayed. Each user can update only their own profile.</p>
+      </section>
+
+      <section>
+        <h2>Images and Stories</h2>
+        <p>Images are stored in a private Supabase bucket. Signed-in members can view them through temporary links that expire after seven days; anyone you forward a link to can open it before it expires. Stories are visible to signed-in members for 24 hours, then disappear from the app. Expired Story records and their stored image files are cleaned up when a member next opens the app.</p>
+        <p>Only JPEG, PNG, and WebP files up to 5 MB are accepted. Do not share images you consider private.</p>
       </section>
 
       <section>

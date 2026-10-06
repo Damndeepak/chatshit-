@@ -4,54 +4,21 @@
   const STORAGE_KEY="chatshit_conversations_v1";
   const THEME_KEY="chatshit_theme_v1";
   const NOTE_KEY="chatshit_note_v1";
+  const CLOUD_ID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
   const colors=["violet","peach","mint","blue","rose","gold","cyan"];
-  const seed=[
-    {id:"everyone",name:"Everyone",username:"PUBLIC ROOM",color:"violet",online:true,story:"",unread:0,group:true,pinned:true,messages:[
-      {from:"them",displayName:"Chatshit",text:"Welcome to the big room 💌 Say hi to everyone here.",time:"Just now"}
-    ]},
-    {id:"maya",name:"Maya Chen",username:"@mayac",color:"violet",online:true,story:"Taking the long way home today ☁️",unread:2,group:false,messages:[
-      {from:"them",text:"hey you 🌿",time:"10:18 AM"},
-      {from:"me",text:"Maya! I was literally just thinking about you",time:"10:20 AM"},
-      {from:"them",text:"The little bookshop on Willow is doing their Sunday poetry thing again. We should go?",time:"10:22 AM"},
-      {from:"me",text:"That sounds like the exact kind of Sunday I need ✨",time:"10:23 AM"},
-      {from:"them",text:"I’ll save you the window seat. Coffee’s on me ☕",time:"10:24 AM"}
-    ]},
-    {id:"leo",name:"Leo Martinez",username:"@leomakes",color:"peach",online:true,story:"Made something weird today",unread:1,group:false,messages:[
-      {from:"them",text:"sent you the playlist!!",time:"9:42 AM"},
-      {from:"me",text:"Already on track three. You know me too well.",time:"9:44 AM"}
-    ]},
-    {id:"sunday-club",name:"Sunday Club",username:"4 people",color:"mint",online:false,story:"Our favorite corner table",unread:0,group:true,messages:[
-      {from:"them",text:"Nina: same time, same place? 🌞",time:"Yesterday"},
-      {from:"me",text:"Wouldn’t miss it.",time:"Yesterday"}
-    ]},
-    {id:"nina",name:"Nina Park",username:"@ninapark",color:"blue",online:false,story:"New film, same obsession",unread:0,group:false,messages:[
-      {from:"them",text:"I found the photo booth we were looking for!",time:"Yesterday"}
-    ]},
-    {id:"ari",name:"Ari Okafor",username:"@ari.ok",color:"rose",online:true,story:"Sunset walk anyone?",unread:0,group:false,messages:[
-      {from:"me",text:"You were right about the little cafe.",time:"Mon"},
-      {from:"them",text:"I’m always right about pastries 🥐",time:"Mon"}
-    ]},
-    {id:"sam",name:"Sam Rivera",username:"@samrivera",color:"gold",online:false,story:"A soft launch of my garden",unread:0,group:false,messages:[
-      {from:"them",text:"Look at this tiny tomato 🌱",time:"Sun"}
-    ]},
-    {id:"ro",name:"Ro Kim",username:"@rokim",color:"cyan",online:true,story:"Borrowed a dog for the afternoon",unread:0,group:false,messages:[
-      {from:"them",text:"You have to meet Potato",time:"Sat"}
-    ]}
-  ];
+  const seed=[{id:"everyone",name:"Everyone",username:"PUBLIC ROOM",color:"violet",online:true,story:"",unread:0,group:true,pinned:true,messages:[]}];
   const emojis=["♡","✨","😂","🥹","🌿","☕","🫶","🌸","🔥","💌","☁️","🍰"];
-  const exampleNotes=[
-    {name:"Maya",color:"violet",text:"slow mornings, loud playlists",musicUrl:"https://music.youtube.com/watch?v=6PfCzo9Oobg"},
-    {name:"Leo",color:"peach",text:"send me your current song",musicUrl:""},
-    {name:"Nina",color:"blue",text:"outside until the streetlights",musicUrl:""}
-  ];
   let conversations=loadConversations();
-  let activeId=conversations[0].id;
-  let activeFilter="all";
+  let activeId="everyone";
   let toastTimer;
-  let typingTimer;
   let currentStory=null;
+  let storyQueue=[];
+  let storyIndex=0;
+  let storyExpiryTimer;
+  let storyAdvanceTimer;
   let cloudConnected=false;
   let cloudNotes=[];
+  let cloudStories=[];
   let cloudProfiles=[];
   let profileDirectoryError="";
   let spotifyNowPlaying=null;
@@ -74,10 +41,8 @@
       const saved=localStorage.getItem(STORAGE_KEY);
       if(saved){
         const parsed=JSON.parse(saved);
-        if(Array.isArray(parsed)&&parsed.length){
-          if(!parsed.some(function(item){return item.id==="everyone";}))parsed.unshift(JSON.parse(JSON.stringify(seed[0])));
-          return parsed;
-        }
+        const room=Array.isArray(parsed)&&parsed.find(function(item){return item&&item.id==="everyone";});
+        if(room&&Array.isArray(room.messages))seed[0].messages=room.messages.filter(function(message){return message&&CLOUD_ID.test(message.id||"")&&CLOUD_ID.test(message.userId||"");}).slice(-100);
       }
     }catch(error){
       try{localStorage.removeItem(STORAGE_KEY);}catch(ignored){}
@@ -95,10 +60,10 @@
   function initials(name){return name.trim().split(/\s+/).slice(0,2).map(function(part){return part.charAt(0);}).join("").toUpperCase()||"?"}
   function findConversation(id){return conversations.find(function(item){return item.id===id;})||conversations[0]}
   function currentConversation(){return findConversation(activeId)}
-  function lastMessage(person){return person.messages[person.messages.length-1]||{text:"Say hello when you’re ready",time:""}}
+  function lastMessage(person){return person.messages[person.messages.length-1]||{text:"No messages yet",time:""}}
   function messagePreview(person){
     const message=lastMessage(person);
-    return (message.from==="me"?"You: ":"")+((message.kind==="image")?"Sent a photo":message.text||"Liked a message");
+    return (message.from==="me"?"You: ":"")+((message.kind==="image")?"Sent a photo":message.text||"No messages yet");
   }
   function sortConversations(){
     return conversations.slice().sort(function(a,b){
@@ -118,9 +83,6 @@
     if(person.online)element.appendChild(node("i","online-dot"));
     return element;
   }
-  function formatNow(){
-    return new Intl.DateTimeFormat(undefined,{hour:"numeric",minute:"2-digit"}).format(new Date());
-  }
   function syncIdentity(){
     const display=identity.nickname||identity.username||"you";
     const first=initials(display).slice(0,1);
@@ -134,25 +96,43 @@
   function renderStories(){
     const strip=$("#storiesStrip");
     strip.replaceChildren();
+    window.clearTimeout(storyExpiryTimer);
+    const now=Date.now();
+    const activeStories=cloudStories.filter(function(story){return Date.parse(story.expiresAt)>now;});
+    if(cloudConnected&&activeStories.length){
+      const nextExpiry=Math.min.apply(null,activeStories.map(function(story){return Date.parse(story.expiresAt);}));
+      storyExpiryTimer=window.setTimeout(reloadCloudStories,Math.max(1000,nextExpiry-now+1000));
+    }
+    const ownId=cloudConnected?window.ChatshitCloud.userId:"";
+    const ownStories=activeStories.filter(function(story){return story.userId===ownId;});
     const own=node("button","story-button story-own");
     own.type="button";
+    own.setAttribute("aria-label",ownStories.length?"View your story":"Add to your story");
     const ring=node("span","story-ring");
     ring.appendChild(avatar({name:identity.nickname||identity.username||"You",color:"me"}));
     own.appendChild(ring);
     own.appendChild(node("span","story-label","Your story"));
-    own.addEventListener("click",openOwnStory);
+    own.addEventListener("click",function(){ownStories.length?openStoryGroup(ownStories):openStoryComposer();});
     strip.appendChild(own);
-    conversations.filter(function(person){return person.story;}).slice(0,6).forEach(function(person){
+    const groups=new Map();
+    activeStories.filter(function(story){return story.userId!==ownId;}).forEach(function(story){
+      if(!groups.has(story.userId))groups.set(story.userId,[]);
+      groups.get(story.userId).push(story);
+    });
+    Array.from(groups.values()).slice(0,12).forEach(function(stories,index){
+      const story=stories[stories.length-1];
       const button=node("button","story-button");
       button.type="button";
-      button.setAttribute("aria-label","View "+person.name+"'s story");
+      button.setAttribute("aria-label","View "+story.displayName+"'s story");
       const storyRing=node("span","story-ring");
-      storyRing.appendChild(avatar(person));
+      storyRing.appendChild(avatar({name:story.displayName,color:colors[index%colors.length]}));
       button.appendChild(storyRing);
-      button.appendChild(node("span","story-label",person.name.split(" ")[0]));
-      button.addEventListener("click",function(){openStory(person);});
+      button.appendChild(node("span","story-label",story.displayName.split(" ")[0]));
+      button.addEventListener("click",function(){openStoryGroup(stories);});
       strip.appendChild(button);
     });
+    if(!cloudConnected)strip.appendChild(node("span","stories-empty-note","Community stories appear here after cloud setup."));
+    else if(!activeStories.length)strip.appendChild(node("span","stories-empty-note","No stories yet. Add the first one."));
   }
   function renderNotes(){
     const strip=$("#notesStrip");
@@ -162,7 +142,7 @@
     const savedSelf=cloudConnected?cloudNotes.find(function(note){return note.userId===window.ChatshitCloud.userId;}):null;
     const own=savedSelf||myNote;
     const entries=[{self:true,name:"You",color:"me",text:own&&own.text||"Drop a little thought…",musicUrl:own&&own.musicUrl||"",nowPlaying:spotifyNowPlaying}];
-    const others=cloudConnected?cloudNotes.filter(function(note){return note.userId!==window.ChatshitCloud.userId;}).map(function(note,index){return {name:note.name,color:colors[index%colors.length],text:note.text,musicUrl:note.musicUrl||""};}):exampleNotes;
+    const others=cloudConnected?cloudNotes.filter(function(note){return note.userId!==window.ChatshitCloud.userId;}).map(function(note,index){return {name:note.name,color:colors[index%colors.length],text:note.text,musicUrl:note.musicUrl||""};}):[];
     others.slice(0,5).forEach(function(note){entries.push(note);});
     entries.forEach(function(entry){
       const card=node("article","note-person"+(entry.self?" is-self":"")+(entry.self&&entry.nowPlaying?" is-listening":""));
@@ -253,15 +233,10 @@
   }
   function renderConversations(){
     const list=$("#conversationList");
-    const query=$("#searchInput").value.trim().toLowerCase();
-    const people=sortConversations().filter(function(person){
-      const matches=(person.name+" "+person.username+" "+messagePreview(person)).toLowerCase().includes(query);
-      const correctFilter=activeFilter==="all"||(activeFilter==="unread"&&person.unread>0)||(activeFilter==="groups"&&person.group);
-      return matches&&correctFilter;
-    });
+    const people=sortConversations();
     list.replaceChildren();
     if(!people.length){
-      list.appendChild(node("div","list-empty",query?"No chats match that search. Try another name.":"It’s quiet in here. Start a new conversation ✨"));
+      list.appendChild(node("div","list-empty","Your community room will show up here."));
     }
     people.forEach(function(person){
       const button=node("button","conversation-item"+(person.id===activeId?" is-active":"")+(person.unread?" is-unread":""));
@@ -272,7 +247,7 @@
       const copy=node("span","conversation-copy");
       const topline=node("span","conversation-topline");
       topline.appendChild(node("span","conversation-name",person.name));
-      topline.appendChild(node("span","conversation-time",lastMessage(person).time||"now"));
+      topline.appendChild(node("span","conversation-time",person.messages.length?lastMessage(person).time||"now":""));
       copy.appendChild(topline);
       copy.appendChild(node("span","conversation-preview",messagePreview(person)));
       button.appendChild(copy);
@@ -286,7 +261,6 @@
     const unread=conversations.reduce(function(total,person){return total+person.unread;},0);
     $("#navUnread").textContent=unread?String(Math.min(unread,9)):"";
     $("#navUnread").hidden=!unread;
-    $("#allCount").textContent=String(conversations.length);
   }
   function renderHeader(){
     const person=currentConversation();
@@ -296,21 +270,10 @@
     if(person.id==="everyone"){
       const orb=node("span","status-orb"+(cloudConnected?"":" is-offline"));
       $("#chatPersonStatus").appendChild(orb);
-      $("#chatPersonStatus").appendChild(document.createTextNode(cloudConnected?"Live community room":"Preview · backend setup needed"));
-      $("#chatStorageLabel").textContent=cloudConnected?"Live with everyone":"Preview only · not shared yet";
+      $("#chatPersonStatus").appendChild(document.createTextNode(cloudConnected?"Live community room":"Connect the community backend"));
+      $("#chatStorageLabel").textContent=cloudConnected?"Live with everyone":"Messages and media are not shared yet";
       $("#chatHandle").textContent="ONE GLOBAL ROOM";
       $("#messageInput").placeholder="Say hello to everyone…";
-    }else if(person.online){
-      $("#chatPersonStatus").appendChild(node("span","status-orb"));
-      $("#chatPersonStatus").appendChild(document.createTextNode("Active now"));
-      $("#chatStorageLabel").textContent="Your messages live in this browser";
-      $("#chatHandle").textContent=person.username;
-      $("#messageInput").placeholder="Write something nice…";
-    }else{
-      $("#chatPersonStatus").textContent="Around recently";
-      $("#chatStorageLabel").textContent="Your messages live in this browser";
-      $("#chatHandle").textContent=person.username;
-      $("#messageInput").placeholder="Write something nice…";
     }
     const headerAvatar=$("#chatPersonAvatar");
     headerAvatar.className="avatar avatar-"+(person.color||"violet");
@@ -320,15 +283,12 @@
     $("#detailAvatar").textContent=initials(person.name);
     $("#detailName").textContent=person.name;
     $("#detailHandle").textContent=person.username;
-    $("#detailStatus").textContent=person.id==="everyone"?(cloudConnected?"Live shared room":"Preview only"):(person.online?"Online now":"Around recently");
+    $("#detailStatus").textContent=cloudConnected?"Live shared room":"Cloud setup needed";
     const safetyTitle=$(".safety-note strong");
     const safetyCopy=$(".safety-note p");
     if(person.id==="everyone"){
-      safetyTitle.textContent=cloudConnected?"Public community chat":"Preview mode";
-      safetyCopy.textContent=cloudConnected?"Messages are visible to everyone in this room. Don’t share private information.":"Messages won’t reach other people until the shared backend is connected.";
-    }else{
-      safetyTitle.textContent="Local preview";
-      safetyCopy.textContent="Messages save in this browser only. They are not encrypted or delivered to another person.";
+      safetyTitle.textContent=cloudConnected?"Public community chat":"Cloud setup needed";
+      safetyCopy.textContent=cloudConnected?"Messages, images and stories are visible to community members. Don’t share private information.":"Connect the shared backend before posting messages, images or stories.";
     }
   }
   function renderMessages(){
@@ -343,8 +303,8 @@
       const art=node("div","empty-chat-art");
       art.innerHTML='<svg class="icon"><use href="#i-chat"/></svg>';
       content.appendChild(art);
-      content.appendChild(node("h2","","A new little corner."));
-      content.appendChild(node("p","","This is the start of your conversation with "+person.name+". Send the first hello whenever you’re ready."));
+      content.appendChild(node("h2","","It’s quiet in here."));
+      content.appendChild(node("p","",cloudConnected?"Say the first hello to everyone in your community.":"Connect the shared backend to start chatting with everyone."));
       welcome.appendChild(content);
       thread.appendChild(welcome);
       renderConversations();
@@ -357,24 +317,11 @@
       const messagePerson=person.id==="everyone"?{name:message.displayName||"Someone",color:colors[(message.displayName||"S").charCodeAt(0)%colors.length]}:person;
       if(!outgoing)row.appendChild(avatar(messagePerson));
       const stack=node("div","message-stack");
-      const tools=node("div","bubble-tools");
-      const react=node("button","bubble-tool");
-      react.type="button";
-      react.setAttribute("aria-label",message.reaction?"Remove heart reaction":"React with a heart");
-      react.title="React with a heart";
-      react.innerHTML='<svg class="icon"><use href="#i-heart"/></svg>';
-      react.addEventListener("click",function(){
-        message.reaction=message.reaction?"":"❤️";
-        saveConversations();
-        renderMessages();
-      });
-      tools.appendChild(react);
-      stack.appendChild(tools);
       if(person.id==="everyone"&&!outgoing)stack.appendChild(node("div","message-author",message.displayName||"Someone"));
       const bubble=node("div","message-bubble"+(message.kind==="image"?" image-bubble":""));
-      if(message.kind==="image"&&message.image){
+      if(message.kind==="image"&&message.imageUrl){
         const image=node("img");
-        image.src=message.image;
+        image.src=message.imageUrl;
         image.alt="Image shared in this conversation";
         bubble.appendChild(image);
         if(message.text&&message.text!=="Photo")bubble.appendChild(node("div","message-caption",message.text));
@@ -384,19 +331,9 @@
       }else{
         bubble.textContent=message.text;
       }
-      if(message.reaction)bubble.appendChild(node("span","message-reaction",message.reaction));
       stack.appendChild(bubble);
       const meta=node("div","message-meta");
       meta.appendChild(node("span","message-time",message.time||"now"));
-      if(outgoing&&index===person.messages.length-1&&person.id!=="everyone"){
-        const read=node("span","message-status");
-        read.appendChild(node("span","","Seen"));
-        const check=node("svg","icon");
-        check.setAttribute("viewBox","0 0 24 24");
-        check.innerHTML='<use href="#i-check"/>';
-        read.appendChild(check);
-        meta.appendChild(read);
-      }
       stack.appendChild(meta);
       row.appendChild(stack);
       thread.appendChild(row);
@@ -435,39 +372,44 @@
     $$(".nav-button").forEach(function(button){button.classList.toggle("is-active",button.dataset.view==="people");});
     renderPeople($("#peopleSearch").value);
   }
-  function addMessage(content,kind,image){
+  function addMessage(content){
     const person=currentConversation();
-    if(!content&&!image)return;
-    if(person.id==="everyone"){
-      if(image){showToast("The public room is text-only for now.");return;}
-      sendGlobalMessage(content);
-      return;
-    }
-    const message={from:"me",text:content||"Photo",time:formatNow(),createdAt:Date.now()};
-    if(kind)message.kind=kind;
-    if(image)message.image=image;
-    person.messages.push(message);
-    person.unread=0;
-    saveConversations();
-    $("#messageInput").value="";
-    resizeComposer();
-    $("#emojiTray").hidden=true;
-    renderMessages();
-    if(person.online)simulateReply(person);
+    if(!content)return;
+    if(person.id==="everyone")sendGlobalMessage(content);
   }
-  async function sendGlobalMessage(content){
-    if(!cloudConnected){showToast("The public room is in preview. Finish the shared-chat setup before posting.");return;}
+  async function sendGlobalMessage(content,imagePath){
+    if(!cloudConnected){showToast("Connect the shared backend before posting to the community.");return;}
     const button=$("#messageForm button[type=submit]");
     button.disabled=true;
     try{
-      const message=await window.ChatshitCloud.sendMessage(content,identity.nickname||"Someone");
+      const message=await window.ChatshitCloud.sendMessage(content,identity.nickname||"Someone",imagePath||"");
       addCloudMessage(message);
       $("#messageInput").value="";
       resizeComposer();
       renderMessages();
     }catch(error){
       showToast("That message did not send. Check your connection and try again.");
-    }finally{button.disabled=false;}
+    }finally{button.disabled=false;$("#attachButton").disabled=false;}
+  }
+  async function sendGlobalImage(file){
+    if(!cloudConnected){showToast("Connect the shared backend before sharing images.");return;}
+    if(!["image/jpeg","image/png","image/webp"].includes(file.type)){showToast("Choose a JPEG, PNG or WebP image.");return;}
+    if(file.size>5*1024*1024){showToast("Choose an image smaller than 5 MB.");return;}
+    const button=$("#attachButton");
+    button.disabled=true;
+    let uploaded=null;
+    try{
+      uploaded=await window.ChatshitCloud.uploadImage(file,"messages");
+      const message=await window.ChatshitCloud.sendMessage($("#messageInput").value.trim(),identity.nickname||"Someone",uploaded.path);
+      addCloudMessage(message);
+      $("#messageInput").value="";
+      resizeComposer();
+      $("#emojiTray").hidden=true;
+      renderMessages();
+    }catch(error){
+      if(uploaded)window.ChatshitCloud.removeMedia(uploaded.path).catch(function(){});
+      showToast("Image could not be shared. Check your connection and media setup.");
+    }finally{button.disabled=false;$("#imageInput").value="";}
   }
   function addCloudMessage(message){
     const room=findConversation("everyone");
@@ -500,12 +442,25 @@
     }
     renderPeople($("#peopleSearch").value);
   }
+  async function reloadCloudStories(){
+    if(!cloudConnected)return;
+    try{
+      cloudStories=await window.ChatshitCloud.loadStories();
+    }catch(error){
+      cloudStories=[];
+      showToast("Stories could not load. Check the Supabase stories setup.");
+    }
+    renderStories();
+  }
   async function connectCommunity(){
     const room=findConversation("everyone");
     if(!window.ChatshitCloud||!window.ChatshitCloud.configured){
-      $("#inboxConnectionLabel").textContent="Saved on this device";
+      $("#inboxConnectionLabel").textContent="Not connected";
       $("#inboxModeLabel").textContent="Cloud setup needed";
       renderHeader();
+      renderStories();
+      renderNotes();
+      renderPeople($("#peopleSearch").value);
       return;
     }
     $("#inboxConnectionLabel").textContent="Connecting…";
@@ -516,13 +471,14 @@
       catch(error){profileDirectoryError="The profiles table is not ready. Run the latest backend/supabase.sql, then refresh.";}
       $("#inboxConnectionLabel").textContent="Community room ready";
       $("#inboxModeLabel").textContent="Live chat";
-      unsubscribeCloud=window.ChatshitCloud.subscribe(addCloudMessage,function(){reloadCloudNotes();},function(){reloadCloudProfiles();});
-      const [messages,notes]=await Promise.all([window.ChatshitCloud.loadMessages(),window.ChatshitCloud.loadNotes()]);
-      const arrivals=room.messages.filter(function(message){return message.id;});
+      unsubscribeCloud=window.ChatshitCloud.subscribe(addCloudMessage,function(){reloadCloudNotes();},function(){reloadCloudProfiles();},function(){reloadCloudStories();});
+      const [messages,notes,stories]=await Promise.all([window.ChatshitCloud.loadMessages(),window.ChatshitCloud.loadNotes(),window.ChatshitCloud.loadStories()]);
+      const arrivals=room.messages.filter(function(message){return message.id&&CLOUD_ID.test(message.id)&&CLOUD_ID.test(message.userId||"");});
       const byId=new Map();
       messages.concat(arrivals).forEach(function(message){if(message.id)byId.set(message.id,message);});
       room.messages=Array.from(byId.values()).sort(function(a,b){return (a.createdAt||0)-(b.createdAt||0);}).slice(-100);
       cloudNotes=notes;
+      cloudStories=stories;
       await reloadCloudProfiles();
       const mine=cloudNotes.find(function(note){return note.userId===window.ChatshitCloud.userId;});
       if(mine)myNote={text:mine.text,musicUrl:mine.musicUrl||"",expiresAt:mine.expiresAt,fromCloud:true};
@@ -530,27 +486,17 @@
       if(!mine&&myNote&&!myNote.fromCloud){await window.ChatshitCloud.saveNote(myNote.text,myNote.musicUrl,identity.nickname||"Someone");myNote.fromCloud=true;}
       saveMyNote();
       renderNotes();
+      renderStories();
       renderMessages();
     }catch(error){
       cloudConnected=false;
-      $("#inboxConnectionLabel").textContent="Saved on this device";
+      $("#inboxConnectionLabel").textContent="Not connected";
       $("#inboxModeLabel").textContent="Cloud connection issue";
       renderHeader();
+      renderStories();
+      renderNotes();
       showToast("Shared chat could not connect. Check the Supabase setup.");
     }
-  }
-  function simulateReply(person){
-    window.clearTimeout(typingTimer);
-    $("#typingLabel").textContent=person.name.split(" ")[0]+" is typing";
-    $("#typingRow").hidden=false;
-    typingTimer=window.setTimeout(function(){
-      if(activeId!==person.id){$("#typingRow").hidden=true;return;}
-      $("#typingRow").hidden=true;
-      const replies=["hehe, exactly 💌","I’m so glad you told me","sending a little love your way ✨","okay, that made my day","say more 👀"];
-      person.messages.push({from:"them",text:replies[Math.floor(Math.random()*replies.length)],time:formatNow(),createdAt:Date.now()});
-      saveConversations();
-      renderMessages();
-    },1800+Math.random()*900);
   }
   function renderPeople(query){
     const grid=$("#peopleCards");
@@ -583,61 +529,83 @@
       });
       return;
     }
-    hint.textContent="Demo profiles · connect the shared backend to list everyone who joins.";
-    const found=conversations.filter(function(person){return person.id!=="everyone"&&(person.name+" "+person.username).toLowerCase().includes(q);});
-    if(!found.length){grid.appendChild(node("div","empty-note","No one by that name yet. Try a different search."));return;}
-    found.forEach(function(person){
-      const card=node("article","person-card");
-      card.appendChild(avatar(person));
-      const copy=node("div","person-card-copy");
-      copy.appendChild(node("strong","",person.name));
-      copy.appendChild(node("small","",person.username+(person.online?" · online":"")));
-      copy.appendChild(node("p","",person.story||"Good conversations start with a hello."));
-      card.appendChild(copy);
-      const button=node("button","person-message-button","Message");
-      button.type="button";
-      button.addEventListener("click",function(){showInbox();openConversation(person.id);});
-      card.appendChild(button);
-      grid.appendChild(card);
-    });
+    hint.textContent="Connect the shared backend to see real community members.";
+    grid.appendChild(node("div","empty-note",q?"Search becomes available when the live directory is connected.":"No fake users here. Real members will appear after Supabase is set up."));
   }
-  function startConversation(){
-    const name=$("#newChatName").value.trim();
-    const note=$("#newChatNote").value.trim();
-    if(!name){$("#newChatName").focus();showToast("Give your new conversation a name first.");return;}
-    const existing=conversations.find(function(person){return person.name.toLowerCase()===name.toLowerCase();});
-    if(existing){
-      $("#composeDialog").close();
-      $("#composeForm").reset();
-      showInbox();
-      openConversation(existing.id);
-      return;
-    }
-    const id="chat-"+Date.now().toString(36);
-    const person={id:id,name:name,username:"@"+name.toLowerCase().replace(/[^a-z0-9]+/g,"").slice(0,16),color:colors[conversations.length%colors.length],online:false,story:"",unread:0,group:false,messages:[]};
-    if(note)person.story=note;
-    conversations.unshift(person);
-    saveConversations();
-    $("#composeDialog").close();
-    $("#composeForm").reset();
-    showInbox();
-    openConversation(id);
-    $("#messageInput").focus();
-    showToast("A new little corner, just for you two.");
-  }
-  function openStory(person){
-    currentStory=person;
-    $("#storyAvatar").textContent=initials(person.name);
-    $("#storyKicker").textContent=person.name.toUpperCase()+" · A LITTLE UPDATE";
-    $("#storyText").textContent=person.story||"A little hello from "+person.name.split(" ")[0];
+  function openStoryGroup(stories){
+    storyQueue=stories.filter(function(story){return Date.parse(story.expiresAt)>Date.now();}).sort(function(a,b){return Date.parse(a.createdAt)-Date.parse(b.createdAt);});
+    if(!storyQueue.length){showToast("That story has expired.");return;}
+    storyIndex=0;
+    renderCurrentStory();
     $("#storyDialog").showModal();
   }
-  function openOwnStory(){
-    currentStory=null;
-    $("#storyAvatar").textContent=initials(identity.nickname||identity.username||"You");
-    $("#storyKicker").textContent="YOUR STORY";
-    $("#storyText").textContent="A small moment worth keeping ✨";
-    $("#storyDialog").showModal();
+  function renderCurrentStory(){
+    window.clearTimeout(storyAdvanceTimer);
+    currentStory=storyQueue[storyIndex]||null;
+    if(!currentStory)return;
+    const isMine=currentStory.userId===window.ChatshitCloud.userId;
+    const image=$("#storyImage");
+    image.hidden=!currentStory.imageUrl;
+    image.src=currentStory.imageUrl||"";
+    $("#storyDialog").classList.toggle("has-image",Boolean(currentStory.imageUrl));
+    $("#storyAvatar").textContent=initials(currentStory.displayName);
+    $("#storyKicker").textContent=(isMine?"YOUR STORY":currentStory.displayName.toUpperCase())+" · "+(storyIndex+1)+" OF "+storyQueue.length;
+    $("#storyText").textContent=currentStory.caption||"";
+    $("#storyText").hidden=!currentStory.caption;
+    $("#storyDeleteButton").hidden=!isMine;
+    $("#storyPreviousButton").disabled=storyIndex===0;
+    $("#storyNextButton").textContent=storyIndex===storyQueue.length-1?"Close":"Next";
+    const progress=$("#storyProgressBar");
+    progress.style.width="0";
+    window.requestAnimationFrame(function(){if(currentStory&&$("#storyDialog").open)progress.style.width="100%";});
+    storyAdvanceTimer=window.setTimeout(function(){
+      if(storyIndex<storyQueue.length-1){storyIndex+=1;renderCurrentStory();}
+      else $("#storyDialog").close();
+    },7000);
+  }
+  function openStoryComposer(){
+    if(!cloudConnected){showToast("Connect the shared backend before posting a story.");return;}
+    $("#storyComposerForm").reset();
+    $("#storyImagePreview").hidden=true;
+    $("#storyImagePreview").removeAttribute("src");
+    $("#storyComposerDialog").showModal();
+    $("#storyCaption").focus();
+  }
+  async function publishStory(event){
+    event.preventDefault();
+    const caption=$("#storyCaption").value.trim();
+    const file=$("#storyImageInput").files&&$("#storyImageInput").files[0];
+    if(!caption&&!file){showToast("Add a photo or a few words to your story.");return;}
+    if(!cloudConnected){showToast("Connect the shared backend before posting a story.");return;}
+    const button=$("#publishStoryButton");
+    button.disabled=true;
+    let uploaded=null;
+    try{
+      if(file)uploaded=await window.ChatshitCloud.uploadImage(file,"stories");
+      const story=await window.ChatshitCloud.createStory(caption,uploaded&&uploaded.path,identity.nickname||identity.username||"Someone");
+      cloudStories=cloudStories.filter(function(item){return item.id!==story.id;});
+      cloudStories.push(story);
+      renderStories();
+      $("#storyComposerDialog").close();
+      showToast("Your story is live for 24 hours.");
+    }catch(error){
+      if(uploaded)window.ChatshitCloud.removeMedia(uploaded.path).catch(function(){});
+      showToast("Your story could not be posted. Check the media and stories setup.");
+    }finally{button.disabled=false;}
+  }
+  async function deleteCurrentStory(){
+    if(!currentStory||currentStory.userId!==window.ChatshitCloud.userId)return;
+    const story=currentStory;
+    const button=$("#storyDeleteButton");
+    button.disabled=true;
+    try{
+      await window.ChatshitCloud.deleteStory(story.id,story.imagePath);
+      cloudStories=cloudStories.filter(function(item){return item.id!==story.id;});
+      renderStories();
+      $("#storyDialog").close();
+      showToast("Your story was removed.");
+    }catch(error){showToast("Your story could not be removed. Try again.");}
+    finally{button.disabled=false;}
   }
   function showToast(message){
     const toast=$("#toast");
@@ -667,6 +635,7 @@
   }
   function init(){
     syncIdentity();
+    saveConversations();
     renderStories();
     renderNotes();
     renderConversations();
@@ -675,15 +644,7 @@
     $$(".nav-button").forEach(function(button){
       button.addEventListener("click",function(){if(button.dataset.view==="people")showPeople();else if(button.dataset.view==="everyone")openConversation("everyone");else showInbox();});
     });
-    $("#searchInput").addEventListener("input",renderConversations);
     $("#peopleSearch").addEventListener("input",function(){renderPeople(this.value);});
-    $$(".filter-chip").forEach(function(button){
-      button.addEventListener("click",function(){
-        activeFilter=button.dataset.filter;
-        $$(".filter-chip").forEach(function(other){other.classList.toggle("is-selected",other===button);other.setAttribute("aria-pressed",String(other===button));});
-        renderConversations();
-      });
-    });
     $("#messageForm").addEventListener("submit",function(event){event.preventDefault();addMessage($("#messageInput").value.trim());});
     $("#messageInput").addEventListener("input",resizeComposer);
     $("#messageInput").addEventListener("keydown",function(event){
@@ -705,19 +666,12 @@
       tray.appendChild(button);
     });
     $("#attachButton").addEventListener("click",function(){$("#imageInput").click();});
-    $("#imageInput").addEventListener("change",function(){
+    $("#imageInput").addEventListener("change",async function(){
       const file=this.files&&this.files[0];
       if(!file)return;
-      if(file.size>300000){showToast("That image is a bit large — try one under 300 KB.");this.value="";return;}
-      const reader=new FileReader();
-      reader.onload=function(){addMessage("Photo","image",reader.result);};
-      reader.readAsDataURL(file);
+      await sendGlobalImage(file);
       this.value="";
     });
-    $("#composeButton").addEventListener("click",function(){$("#composeDialog").showModal();$("#newChatName").focus();});
-    $("#peopleComposeButton").addEventListener("click",function(){$("#composeDialog").showModal();$("#newChatName").focus();});
-    $("#startChatButton").addEventListener("click",startConversation);
-    $("#newChatName").addEventListener("keydown",function(event){if(event.key==="Enter"){event.preventDefault();startConversation();}});
     $("#editProfileButton").addEventListener("click",function(){$("#profileDialog").showModal();$("#profileName").focus();});
     $("#mobileProfileButton").addEventListener("click",function(){$("#profileDialog").showModal();$("#profileName").focus();});
     $("#saveProfileButton").addEventListener("click",async function(){
@@ -737,7 +691,27 @@
         showToast(cloudConnected&&profileDirectoryError?"Name saved here, but the community profile could not update.":"Your little corner has your name on it now.");
       }
     });
-    $("#yourStoryButton").addEventListener("click",openOwnStory);
+    $("#yourStoryButton").addEventListener("click",openStoryComposer);
+    $("#storyComposerForm").addEventListener("submit",publishStory);
+    $("#closeStoryComposer").addEventListener("click",function(){$("#storyComposerDialog").close();});
+    $("#storyComposerDialog").addEventListener("close",function(){
+      const preview=$("#storyImagePreview");
+      if(preview.dataset.objectUrl)URL.revokeObjectURL(preview.dataset.objectUrl);
+      delete preview.dataset.objectUrl;
+      preview.removeAttribute("src");
+      preview.hidden=true;
+    });
+    $("#storyImageInput").addEventListener("change",function(){
+      const file=this.files&&this.files[0];
+      const preview=$("#storyImagePreview");
+      if(!file){preview.hidden=true;preview.removeAttribute("src");return;}
+      if(!["image/jpeg","image/png","image/webp"].includes(file.type)){showToast("Choose a JPEG, PNG or WebP image.");this.value="";preview.hidden=true;return;}
+      if(file.size>5*1024*1024){showToast("Choose an image smaller than 5 MB.");this.value="";preview.hidden=true;return;}
+      if(preview.dataset.objectUrl)URL.revokeObjectURL(preview.dataset.objectUrl);
+      preview.dataset.objectUrl=URL.createObjectURL(file);
+      preview.src=preview.dataset.objectUrl;
+      preview.hidden=false;
+    });
     $("#editNoteButton").addEventListener("click",openNoteEditor);
     $("#spotifyConnectButton").addEventListener("click",async function(){
       try{await window.ChatshitSpotify.connect();}
@@ -776,19 +750,18 @@
       showToast(cloudConnected?"Your note is up for everyone for 24 hours.":"Note saved here. Set up the cloud to share it with everyone.");
     });
     $("#closeStory").addEventListener("click",function(){$("#storyDialog").close();});
-    $("#storyReply").addEventListener("click",function(){
-      $("#storyDialog").close();
-      if(currentStory){showInbox();openConversation(currentStory.id);addMessage("Sending a little love your way ♡");}
-      else showToast("Your story is ready for a little polish.");
-    });
+    $("#storyDialog").addEventListener("close",function(){window.clearTimeout(storyAdvanceTimer);storyQueue=[];currentStory=null;$("#storyImage").removeAttribute("src");});
+    $("#storyPreviousButton").addEventListener("click",function(){if(storyIndex>0){storyIndex-=1;renderCurrentStory();}});
+    $("#storyNextButton").addEventListener("click",function(){if(storyIndex<storyQueue.length-1){storyIndex+=1;renderCurrentStory();}else{$("#storyDialog").close();storyQueue=[];currentStory=null;}});
+    $("#storyDeleteButton").addEventListener("click",deleteCurrentStory);
     $("#backToInbox").addEventListener("click",showInbox);
     $("#peopleBackButton").addEventListener("click",showInbox);
     $("#closeDetails").addEventListener("click",function(){$("#detailsPanel").classList.remove("detail-open");});
     $("#detailToggle").addEventListener("click",function(){$("#detailsPanel").classList.toggle("detail-open");});
-    $$("[data-toast]").forEach(function(button){button.addEventListener("click",function(){showToast(button.dataset.toast);});});
     document.addEventListener("keydown",function(event){
-      if((event.metaKey||event.ctrlKey)&&event.key.toLowerCase()==="k"){event.preventDefault();$("#searchInput").focus();}
       if(event.key==="Escape"){$("#emojiTray").hidden=true;$("#detailsPanel").classList.remove("detail-open");}
+      if($("#storyDialog").open&&event.key==="ArrowRight")$("#storyNextButton").click();
+      if($("#storyDialog").open&&event.key==="ArrowLeft")$("#storyPreviousButton").click();
     });
     const themeButton=node("button","theme-toggle");
     themeButton.type="button";
