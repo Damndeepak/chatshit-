@@ -46,6 +46,26 @@ body.identity-page{min-height:100vh;padding:0 6vw;color:var(--ink);font-family:v
 .skip-identity{display:block;width:max-content;margin:17px auto 0;color:#9684d8;text-decoration:none;font-size:9px;font-weight:700}
 .skip-identity:hover{color:#5e49bc}.skip-identity span{margin-left:4px}
 .identity-footer{min-height:53px;border-top:1px solid #e9e5ef;display:flex;align-items:center;justify-content:space-between;color:#aaa5b2;font-size:8px;letter-spacing:.03em}
+body.dark.identity-page{color-scheme:dark;color:#eeeaf6;background:radial-gradient(circle at 20% 40%,#382b3b 0,transparent 29%),radial-gradient(circle at 90% 80%,#302b47 0,transparent 32%),#211e2b}
+body.dark .identity-nav,body.dark .identity-footer{border-color:#393447}
+body.dark .identity-brand{color:#eeeaf6}
+body.dark .identity-nav-note,body.dark .identity-story>p,body.dark .identity-footer{color:#a59eb5}
+body.dark .identity-label{color:#b5a9d6}
+body.dark .identity-story h1{color:#f1edf8}
+body.dark .art-bubble{background:#302d3de8;border-color:#494255;color:#d8d0e9;box-shadow:0 11px 27px #09080d35}
+body.dark .identity-caption{color:#aaa3b8}
+body.dark .identity-card{background:#302d3deb;border-color:#403b50;box-shadow:0 25px 70px #09080d50}
+body.dark .identity-step,body.dark .identity-helper{color:#aaa4b9}
+body.dark .identity-card-mark{background:#403953;color:#c4b8f5}
+body.dark .identity-card form label{color:#d2ccdf}
+body.dark .identity-input-wrap{background:#272431;border-color:#484256}
+body.dark .identity-input-wrap:focus-within{background:#292634;border-color:#8d79d6;box-shadow:0 0 0 4px #8069da28}
+body.dark .identity-input-wrap input{color:#f1edf8}
+body.dark .identity-input-wrap input::placeholder{color:#8f899d}
+body.dark .identity-separator{color:#8f899d}
+body.dark .identity-separator:before,body.dark .identity-separator:after{background:#494355}
+body.dark .identity-footnote p{color:#a7a0b4}
+body.dark .skip-identity{color:#b7a7f5}
 @keyframes floaty{0%,100%{translate:0 0}50%{translate:0 -7px}}
 @media(max-width:760px){
   body.identity-page{padding:0 22px}

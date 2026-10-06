@@ -119,8 +119,6 @@
 .story-image-preview{display:block;width:100%;max-height:190px;object-fit:cover;border-radius:12px;margin-top:12px}
 .toast{position:fixed;z-index:40;left:50%;bottom:30px;transform:translate(-50%,15px);border:1px solid #ffffff25;border-radius:12px;background:#322d45;color:#fff;padding:11px 16px;box-shadow:0 12px 32px #2720392e;font-size:10px;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;max-width:calc(100vw - 32px);text-align:center}
 .toast.is-visible{opacity:1;transform:translate(-50%,0)}.empty-note{grid-column:1/-1;padding:35px;text-align:center;color:#9e99aa;font-size:11px}
-.theme-toggle{width:30px;height:30px;display:grid;place-items:center;border:1px solid #efedf4;border-radius:10px;background:#fff;color:#928aa5;cursor:pointer;margin-left:7px;transition:all .2s}
-.theme-toggle:hover{background:#f1edff;color:#6f58d1;transform:rotate(-12deg)}.theme-toggle .icon{width:15px;height:15px}
 .details-panel.detail-open{display:flex;position:absolute;z-index:6;right:0;top:0;bottom:0;width:278px;box-shadow:-18px 0 45px #30204816}
 .like-bubble{font-size:36px!important;background:transparent!important;box-shadow:none!important;padding:3px 10px!important}
 .mobile-profile-button{display:none;border:0;background:transparent;padding:0;cursor:pointer}

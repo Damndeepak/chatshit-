@@ -2,7 +2,6 @@
 (function(){
   "use strict";
   const STORAGE_KEY="chatshit_conversations_v1";
-  const THEME_KEY="chatshit_theme_v1";
   const NOTE_KEY="chatshit_note_v1";
   const CLOUD_ID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
   const colors=["violet","peach","mint","blue","rose","gold","cyan"];
@@ -619,10 +618,6 @@
     input.style.height="auto";
     input.style.height=Math.min(input.scrollHeight,96)+"px";
   }
-  function applyTheme(theme){
-    document.body.classList.toggle("dark",theme==="dark");
-    try{localStorage.setItem(THEME_KEY,theme);}catch(error){}
-  }
   function setupInstall(){
     if((window.matchMedia&&window.matchMedia("(display-mode: standalone)").matches)||navigator.standalone)$("#installAppButton").hidden=true;
     window.addEventListener("beforeinstallprompt",function(event){event.preventDefault();installPrompt=event;$("#installAppButton").classList.add("install-ready");});
@@ -640,7 +635,6 @@
     renderNotes();
     renderConversations();
     renderMessages();
-    try{if(localStorage.getItem(THEME_KEY)==="dark")applyTheme("dark");}catch(error){}
     $$(".nav-button").forEach(function(button){
       button.addEventListener("click",function(){if(button.dataset.view==="people")showPeople();else if(button.dataset.view==="everyone")openConversation("everyone");else showInbox();});
     });
@@ -763,13 +757,6 @@
       if($("#storyDialog").open&&event.key==="ArrowRight")$("#storyNextButton").click();
       if($("#storyDialog").open&&event.key==="ArrowLeft")$("#storyPreviousButton").click();
     });
-    const themeButton=node("button","theme-toggle");
-    themeButton.type="button";
-    themeButton.setAttribute("aria-label","Toggle dark mode");
-    themeButton.title="A softer after-dark";
-    themeButton.innerHTML='<svg class="icon"><use href="#i-moon"/></svg>';
-    themeButton.addEventListener("click",function(){applyTheme(document.body.classList.contains("dark")?"light":"dark");});
-    $(".inbox-heading").appendChild(themeButton);
     setupInstall();
     connectCommunity();
   }

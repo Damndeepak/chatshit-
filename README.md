@@ -8,7 +8,8 @@ Open `index.html` for the local preview. For service-worker and install behavior
 
 ## Features
 
-- Responsive inbox for one shared community room, profile, stories, search, reactions, and dark mode.
+- Responsive inbox for one shared community room, profile, and Stories.
+- Automatically follows the phone or browser’s light/dark appearance and updates when the system setting changes.
 - Image sharing in the room and photo or text stories, with 5 MB JPEG, PNG, or WebP uploads.
 - Notes that expire after 24 hours, with optional YouTube Music / Metrolist / Spotify links.
 - Optional Spotify sign-in that shows your own live track in Notes on this device.

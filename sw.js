@@ -1,4 +1,4 @@
-const CACHE_NAME = "chatshit-shell-v5";
+const CACHE_NAME = "chatshit-shell-v6";
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -14,6 +14,7 @@ const APP_SHELL = [
   "./js/identity.js",
   "./js/cloud-config.js",
   "./js/cloud.js",
+  "./js/theme.js",
   "./js/spotify.js",
   "./js/dms.js"
 ];

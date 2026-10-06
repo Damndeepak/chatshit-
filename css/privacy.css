@@ -11,6 +11,7 @@
 .privacy-card p{margin:8px 0 0;color:#777286;font-size:11px;line-height:1.8}
 .privacy-card strong{color:#58516c}.privacy-card a{color:#715ed1;font-weight:700;text-decoration:none}.privacy-card a:hover{text-decoration:underline}
 .privacy-shell footer{padding:16px 0;color:#aaa5b3;font-size:9px;text-align:center}
+body.dark{color-scheme:dark;color:#eeeaf6;background:radial-gradient(circle at 15% 15%,#373047 0,transparent 33%),radial-gradient(circle at 85% 85%,#342833 0,transparent 30%),#211e2b}
 body.dark .privacy-wordmark{color:#eeeaf6}body.dark .privacy-card{background:#302d3d;border-color:#403b50}
 body.dark .privacy-card h1{color:#f0edf7}body.dark .privacy-card h2,body.dark .privacy-card strong{color:#d2c9ed}
 body.dark .privacy-card p{color:#bbb5c7}body.dark .privacy-updated,body.dark .privacy-shell footer{color:#938ca2}
