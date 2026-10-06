@@ -1,4 +1,4 @@
-const CACHE_NAME = "chatshit-shell-v8";
+const CACHE_NAME = "chatshit-shell-v9";
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -12,11 +12,11 @@ const APP_SHELL = [
   "./css/responsive.css",
   "./css/privacy.css",
   "./js/identity.js",
-  "./js/cloud-config.js",
-  "./js/cloud.js",
+  "./js/cloud-config.js?v=chat-v9",
+  "./js/cloud.js?v=chat-v9",
   "./js/theme.js",
   "./js/spotify.js",
-  "./js/dms.js"
+  "./js/dms.js?v=chat-v9"
 ];
 
 self.addEventListener("install", event => {
