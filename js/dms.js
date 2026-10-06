@@ -437,7 +437,7 @@
       profileDirectoryError=cloudProfiles.some(function(profile){return profile.userId===window.ChatshitCloud.userId;})?"":"Your profile is missing. Run the latest backend/supabase.sql, then refresh.";
     }catch(error){
       cloudProfiles=[];
-      profileDirectoryError="The profiles table is not ready. Run the latest backend/supabase.sql, then refresh.";
+      profileDirectoryError="The Chatshit profiles table is not ready. Run the latest backend/supabase.sql, then refresh.";
     }
     renderPeople($("#peopleSearch").value);
   }
@@ -467,7 +467,7 @@
       await window.ChatshitCloud.connect(identity.nickname||"Someone");
       cloudConnected=true;
       try{await window.ChatshitCloud.saveProfile(identity.nickname||identity.username||"Someone");}
-      catch(error){profileDirectoryError="The profiles table is not ready. Run the latest backend/supabase.sql, then refresh.";}
+      catch(error){profileDirectoryError="The Chatshit profiles table is not ready. Run the latest backend/supabase.sql, then refresh.";}
       $("#inboxConnectionLabel").textContent="Community room ready";
       $("#inboxModeLabel").textContent="Live chat";
       unsubscribeCloud=window.ChatshitCloud.subscribe(addCloudMessage,function(){reloadCloudNotes();},function(){reloadCloudProfiles();},function(){reloadCloudStories();});
@@ -504,7 +504,7 @@
     const hint=$("#peopleDirectoryHint");
     if(cloudConnected){
       if(profileDirectoryError){
-        hint.textContent="Member list unavailable · check the Supabase profiles setup.";
+        hint.textContent="Member list unavailable · check the Chatshit profiles setup.";
         grid.appendChild(node("div","empty-note",profileDirectoryError));
         return;
       }
@@ -679,7 +679,7 @@
         renderNotes();
         if(cloudConnected){
           try{await window.ChatshitCloud.saveProfile(identity.nickname||identity.username||"Someone");await reloadCloudProfiles();}
-          catch(error){profileDirectoryError="Your profile could not be updated. Check the Supabase profiles table.";renderPeople($("#peopleSearch").value);}
+          catch(error){profileDirectoryError="Your profile could not be updated. Check the Chatshit profiles table.";renderPeople($("#peopleSearch").value);}
         }
         $("#profileDialog").close();
         showToast(cloudConnected&&profileDirectoryError?"Name saved here, but the community profile could not update.":"Your little corner has your name on it now.");

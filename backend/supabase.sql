@@ -1,5 +1,7 @@
--- Run this in the Supabase SQL Editor after creating a project.
--- Then enable Anonymous Sign-Ins in Authentication > Providers.
+-- Run this in the Supabase SQL Editor for the project Chatshit will use.
+-- It adds Chatshit-specific tables and a private media bucket without backfilling
+-- Auth users from other apps that may share this Supabase project.
+-- Enable Anonymous Sign-Ins in Authentication > Providers for Chatshit visitors.
 
 create table if not exists public.global_messages (
   id uuid primary key default gen_random_uuid(),
@@ -48,7 +50,7 @@ create table if not exists public.global_notes (
   updated_at timestamptz not null default now()
 );
 
-create table if not exists public.profiles (
+create table if not exists public.chatshit_profiles (
   user_id uuid primary key references auth.users(id) on delete cascade,
   display_name text not null check (char_length(display_name) between 1 and 28),
   created_at timestamptz not null default now(),
@@ -73,22 +75,17 @@ insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_typ
 values ('chatshit-media', 'chatshit-media', false, 5242880, array['image/jpeg','image/png','image/webp'])
 on conflict (id) do update set public = excluded.public, file_size_limit = excluded.file_size_limit, allowed_mime_types = excluded.allowed_mime_types;
 
--- Backfill existing anonymous and registered Auth users so the directory is complete.
-insert into public.profiles (user_id, display_name, created_at)
-select u.id,
-  left(coalesce(nullif(btrim(u.raw_user_meta_data->>'display_name'), ''), 'Chatshit user'), 28),
-  u.created_at
-from auth.users as u
-on conflict (user_id) do nothing;
+-- Do not backfill auth.users here: this schema can share a Supabase project with other apps.
+-- Chatshit profiles are created when each visitor opens Chatshit.
 
 alter table public.global_messages enable row level security;
 alter table public.global_notes enable row level security;
-alter table public.profiles enable row level security;
+alter table public.chatshit_profiles enable row level security;
 alter table public.global_stories enable row level security;
 
 grant select, insert on public.global_messages to authenticated;
 grant select, insert, update, delete on public.global_notes to authenticated;
-grant select, insert, update on public.profiles to authenticated;
+grant select, insert, update on public.chatshit_profiles to authenticated;
 grant select, insert, delete on public.global_stories to authenticated;
 
 drop policy if exists "Signed-in users can read global messages" on public.global_messages;
@@ -173,16 +170,16 @@ drop policy if exists "Users can clear their own note" on public.global_notes;
 create policy "Users can clear their own note" on public.global_notes
   for delete to authenticated using (auth.uid() = user_id);
 
-drop policy if exists "Signed-in users can read community profiles" on public.profiles;
-create policy "Signed-in users can read community profiles" on public.profiles
+drop policy if exists "Signed-in users can read community profiles" on public.chatshit_profiles;
+create policy "Signed-in users can read community profiles" on public.chatshit_profiles
   for select to authenticated using (auth.uid() is not null);
 
-drop policy if exists "Users can create their own profile" on public.profiles;
-create policy "Users can create their own profile" on public.profiles
+drop policy if exists "Users can create their own profile" on public.chatshit_profiles;
+create policy "Users can create their own profile" on public.chatshit_profiles
   for insert to authenticated with check (auth.uid() = user_id);
 
-drop policy if exists "Users can update their own profile" on public.profiles;
-create policy "Users can update their own profile" on public.profiles
+drop policy if exists "Users can update their own profile" on public.chatshit_profiles;
+create policy "Users can update their own profile" on public.chatshit_profiles
   for update to authenticated using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
 do $$ begin
@@ -196,7 +193,7 @@ exception when duplicate_object then null;
 end $$;
 
 do $$ begin
-  alter publication supabase_realtime add table public.profiles;
+  alter publication supabase_realtime add table public.chatshit_profiles;
 exception when duplicate_object then null;
 end $$;
 

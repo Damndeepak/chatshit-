@@ -118,7 +118,7 @@
     let offset = 0;
     const pageSize = 500;
     while (true) {
-      const { data, error } = await client.from("profiles").select("user_id,display_name,created_at").order("display_name", { ascending: true }).order("user_id", { ascending: true }).range(offset, offset + pageSize - 1);
+      const { data, error } = await client.from("chatshit_profiles").select("user_id,display_name,created_at").order("display_name", { ascending: true }).order("user_id", { ascending: true }).range(offset, offset + pageSize - 1);
       if (error) throw error;
       rows = rows.concat(data || []);
       if (!data || data.length < pageSize) break;
@@ -130,7 +130,7 @@
   async function saveProfile(displayName) {
     if (!userId) throw new Error("Your community profile is still connecting.");
     const cleanName = String(displayName || "Someone").trim().slice(0, 28) || "Someone";
-    const { error } = await client.from("profiles").upsert({ user_id: userId, display_name: cleanName, updated_at: new Date().toISOString() }, { onConflict: "user_id" });
+    const { error } = await client.from("chatshit_profiles").upsert({ user_id: userId, display_name: cleanName, updated_at: new Date().toISOString() }, { onConflict: "user_id" });
     if (error) throw error;
   }
 
@@ -141,7 +141,7 @@
         mapMessage(payload.new).then(onMessage).catch(error => console.warn("A shared image could not be loaded.", error));
       })
       .on("postgres_changes", { event: "*", schema: "public", table: "global_notes" }, onNote)
-      .on("postgres_changes", { event: "*", schema: "public", table: "profiles" }, function () { if (onProfile) onProfile(); })
+      .on("postgres_changes", { event: "*", schema: "public", table: "chatshit_profiles" }, function () { if (onProfile) onProfile(); })
       .on("postgres_changes", { event: "*", schema: "public", table: "global_stories" }, function () { if (onStory) onStory(); })
       .subscribe();
     return function () { client.removeChannel(channel); };

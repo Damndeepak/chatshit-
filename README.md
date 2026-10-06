@@ -20,15 +20,15 @@ Open `index.html` for the local preview. For service-worker and install behavior
 
 ## Turn on shared chat and Notes
 
-The repository is static; it does not contain a server or database. Supabase supplies anonymous sessions, public profiles/messages/notes tables, and realtime updates.
+The repository is static; it does not contain a server or database. Supabase supplies anonymous sessions, Chatshit profiles/messages/notes tables, and realtime updates.
 
-1. Create a Supabase project.
+1. Open the Supabase project Chatshit should use. A shared project also shares Auth settings and usage quotas with its other apps.
 2. In **Authentication → Sign-in / Providers**, enable anonymous sign-ins.
-3. Open **SQL Editor** and run [`backend/supabase.sql`](backend/supabase.sql). If Supabase was already set up, run the updated script again to add image and story support and backfill the profiles table.
+3. Open **SQL Editor** and run [`backend/supabase.sql`](backend/supabase.sql). It uses Chatshit-specific table and bucket names so it can coexist with other apps in the same project. It does not backfill unrelated Auth users.
 4. Copy the project URL and its **publishable** key (or legacy anon key) into `js/cloud-config.js`.
 5. Deploy the repo to an HTTPS host. The first visit creates an anonymous session, registers its display name in the directory, and joins the one shared room.
 
-The current sign-in is anonymous and tied to that browser; this repo does not yet have email/password registration or cross-device accounts. **People** lists every row in `profiles`, including the current user. Only display names and account creation dates are exposed; emails are never queried or shown. RLS lets signed-in members read the directory and update only their own profile. The app currently has one public room; it does not provide private one-to-one chats.
+The current sign-in is anonymous and tied to that browser; this repo does not yet have email/password registration or cross-device accounts. **People** lists every row in `chatshit_profiles`, including the current user. Only display names and account creation dates are exposed; emails are never queried or shown. RLS lets signed-in members read the directory and update only their own profile. The app currently has one public room; it does not provide private one-to-one chats.
 
 The browser key is public by design; row-level security in the SQL file controls access. Never put a `service_role` or secret key in `cloud-config.js`. The directory, room, Notes, and active Stories are visible to signed-in visitors. Stories expire after 24 hours. Images live in a private Storage bucket and are displayed with signed links that expire after seven days; anyone you forward a signed link to can open it before expiry. Expired Story rows and their image files are cleaned up when a member next opens the app. Messages are limited to 1,000 characters and 20 per user per minute; Notes are limited to 60 characters. Add CAPTCHA and moderation before inviting a large public audience.
 
